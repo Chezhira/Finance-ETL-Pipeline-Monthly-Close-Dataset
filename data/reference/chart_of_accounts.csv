@@ -1,0 +1,13 @@
+account_code,account_name,account_type
+40000001,Sales - Export,Revenue
+40000002,Sales - Local,Revenue
+50000001,COGS - Inventory,COGS
+61000001,Salaries & Wages,Expense
+61000002,Payroll Taxes,Expense
+62000001,Rent,Expense
+63000001,Travel & Subsistence,Expense
+64000001,Bank Charges,Expense
+10000001,Cash at Bank,Asset
+11000001,Accounts Receivable,Asset
+20000001,Accounts Payable,Liability
+21000001,VAT Payable,Liability
