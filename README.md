@@ -1,6 +1,6 @@
 ﻿# Finance ETL Pipeline (Monthly Close Dataset)
 
-[![CI](https://github.com/Chezhira/finance-etl-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Chezhira/finance-etl-pipeline/actions/workflows/ci.yml)
+[![CI](https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset/actions/workflows/ci.yml/badge.svg)](https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset/actions/workflows/ci.yml)
 
 A portfolio-grade **data engineering mini-project** that turns messy monthly finance extracts into **validated, curated Parquet datasets** for dashboards and FP&A.
 
@@ -73,4 +73,5 @@ Sample rows from data/curated/kpi_monthly.parquet:
 |--------|---------|--------:|----------:|-----------:|----------:|------------:|-----------------:|
 | TLM    | 2025-12 |  4771.96 | -15648.55 | -38682.57  |  48129.36 |    32480.81 |         -6201.76 |
 | UPE    | 2025-12 | 12717.67 | -17281.12 | -31250.48  |  30050.52 |    12769.40 |        -18481.08 |
+
 
