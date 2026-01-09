@@ -1,4 +1,4 @@
-﻿# Finance ETL Pipeline (Monthly Close Dataset)
+# Finance ETL Pipeline (Monthly Close Dataset)
 
 [![CI](https://github.com/Chezhira/finance-etl-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Chezhira/finance-etl-pipeline/actions/workflows/ci.yml)
 
@@ -69,7 +69,7 @@ To adapt to real exports, replace data/raw/*.csv with your extracts and keep the
 
 Sample rows from data/curated/kpi_monthly.parquet:
 
-`	ext
-entity   month    Asset      COGS   Expense  Revenue  gross_profit  operating_profit
-   TML 2025-12  4771.96 -15648.55 -38682.57 48129.36      32480.81          -6201.76
-UPENDO 2025-12 12717.67 -17281.12 -31250.48 30050.52      12769.40         -18481.08
+| entity | month   | Asset   | COGS      | Expense    | Revenue   | gross_profit | operating_profit |
+|--------|---------|--------:|----------:|-----------:|----------:|------------:|-----------------:|
+| TLM    | 2025-12 |  4771.96 | -15648.55 | -38682.57  |  48129.36 |    32480.81 |         -6201.76 |
+| UPE    | 2025-12 | 12717.67 | -17281.12 | -31250.48  |  30050.52 |    12769.40 |        -18481.08 |

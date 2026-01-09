@@ -10,7 +10,7 @@ def generate_synthetic_raw(out_dir: Path, month: str = "2025-12", seed: int = 42
 
     np.random.seed(seed)
 
-    entities = ["TML", "UPENDO"]
+    entities = ["TLM", "UPE"]
     currencies = ["USD", "TZS", "EUR"]
 
     start = pd.to_datetime(f"{month}-01")
