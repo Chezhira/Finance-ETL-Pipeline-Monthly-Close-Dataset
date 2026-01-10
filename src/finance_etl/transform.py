@@ -8,11 +8,13 @@ def build_dim_accounts(chart_of_accounts: pd.DataFrame) -> pd.DataFrame:
     dim["account_code"] = dim["account_code"].astype(str)
     return dim
 
+
 def fx_to_base(fx_rates: pd.DataFrame, base_currency: str) -> pd.DataFrame:
     fx = fx_rates.copy()
     fx["date"] = pd.to_datetime(fx["date"]).dt.date
     fx = fx[fx["to_currency"] == base_currency].copy()
     return fx
+
 
 def add_fx_amount_base(df: pd.DataFrame, fx: pd.DataFrame, base_currency: str) -> pd.DataFrame:
     out = df.copy()
@@ -42,6 +44,7 @@ def add_fx_amount_base(df: pd.DataFrame, fx: pd.DataFrame, base_currency: str) -
     out["amount_base"] = (out["amount"] * out["rate"]).round(2)
     out.drop(columns=["date_key"], inplace=True)
     return out
+
 
 def to_fact_transactions(
     sales: pd.DataFrame,
@@ -92,25 +95,28 @@ def to_fact_transactions(
     fact["txn_id"] = fact["entity"].astype(str) + "|" + fact["source"] + "|" + fact["document_id"].astype(str)
 
     cols = [
-        "txn_id", "date", "entity", "source", "document_id",
-        "account_code", "currency", "amount", "rate", "amount_base", "description"
+        "txn_id",
+        "date",
+        "entity",
+        "source",
+        "document_id",
+        "account_code",
+        "currency",
+        "amount",
+        "rate",
+        "amount_base",
+        "description",
     ]
     return fact[cols]
+
 
 def kpi_monthly(fact: pd.DataFrame, dim_accounts: pd.DataFrame) -> pd.DataFrame:
     df = fact.merge(dim_accounts[["account_code", "account_type"]], on="account_code", how="left")
     df["month"] = pd.to_datetime(df["date"]).dt.to_period("M").astype(str)
 
-    pivot = (
-        df.groupby(["entity", "month", "account_type"], dropna=False)["amount_base"]
-          .sum()
-          .reset_index()
-    )
+    pivot = df.groupby(["entity", "month", "account_type"], dropna=False)["amount_base"].sum().reset_index()
     wide = pivot.pivot_table(
-        index=["entity", "month"],
-        columns="account_type",
-        values="amount_base",
-        fill_value=0
+        index=["entity", "month"], columns="account_type", values="amount_base", fill_value=0
     ).reset_index()
 
     for col in ["Revenue", "COGS", "Expense"]:

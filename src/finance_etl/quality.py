@@ -12,6 +12,7 @@ def _dup_check(keys: list[str], label: str) -> Check:
         error=f"Duplicates found for keys {keys} in {label}",
     )
 
+
 def sales_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
     return pa.DataFrameSchema(
         {
@@ -27,6 +28,7 @@ def sales_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
         strict=True,
     )
 
+
 def expenses_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
     return pa.DataFrameSchema(
         {
@@ -41,6 +43,7 @@ def expenses_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
         checks=[_dup_check(["entity", "bill_id"], "expenses")],
         strict=True,
     )
+
 
 def payroll_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
     return pa.DataFrameSchema(
@@ -63,6 +66,7 @@ def payroll_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
         strict=True,
     )
 
+
 def inventory_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
     return pa.DataFrameSchema(
         {
@@ -77,6 +81,7 @@ def inventory_schema(allowed_currencies: tuple[str, ...]) -> pa.DataFrameSchema:
         strict=True,
     )
 
+
 def fx_schema(allowed_currencies: tuple[str, ...], base_currency: str) -> pa.DataFrameSchema:
     return pa.DataFrameSchema(
         {
@@ -88,6 +93,7 @@ def fx_schema(allowed_currencies: tuple[str, ...], base_currency: str) -> pa.Dat
         checks=[_dup_check(["date", "from_currency", "to_currency"], "fx_rates")],
         strict=True,
     )
+
 
 def validate_or_collect(
     df: pd.DataFrame,
@@ -107,9 +113,12 @@ def validate_or_collect(
         fc = fc[keep + rest]
         issues.append(fc)
         return None
+
+
 # --- DQ severity + summary helpers (audit-ready) ---
 
 DATASETS = ["sales", "expenses", "payroll", "inventory_movements", "fx_rates"]
+
 
 def add_severity(dq_exceptions: pd.DataFrame) -> pd.DataFrame:
     """
@@ -208,12 +217,7 @@ def dq_summary_table(dq_exceptions: pd.DataFrame, fail_on: str = "ERROR") -> pd.
     if "severity" not in dq.columns:
         dq["severity"] = "ERROR"
 
-    counts = (
-        dq.groupby(["dataset", "severity"])
-          .size()
-          .unstack(fill_value=0)
-          .reset_index()
-    )
+    counts = dq.groupby(["dataset", "severity"]).size().unstack(fill_value=0).reset_index()
 
     # Normalize column names
     if "ERROR" not in counts.columns:
@@ -243,4 +247,3 @@ def dq_summary_table(dq_exceptions: pd.DataFrame, fail_on: str = "ERROR") -> pd.
         out["status"] = out["error_count"].apply(lambda x: "FAIL" if x > 0 else "PASS")
 
     return out[["dataset", "error_count", "warn_count", "issue_count", "status"]]
-

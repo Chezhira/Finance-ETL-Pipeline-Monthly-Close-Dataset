@@ -12,4 +12,5 @@ class Settings(BaseModel):
     curated_dir: Path = Path("data/curated")
     reference_dir: Path = Path("data/reference")
 
+
 settings = Settings()

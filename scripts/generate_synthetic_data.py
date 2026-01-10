@@ -16,5 +16,6 @@ def main() -> None:
     generate_synthetic_raw(Path(args.out_dir), month=args.month, seed=args.seed)
     print(f"? Synthetic raw data generated in {args.out_dir}")
 
+
 if __name__ == "__main__":
     main()

@@ -26,6 +26,7 @@ def _month_window(month: str) -> tuple[pd.Timestamp, pd.Timestamp]:
     end = start + pd.offsets.MonthBegin(1)
     return start, end
 
+
 def _dq_account_in_coa(df: pd.DataFrame, dataset: str, coa_codes: set[str], issues: list[pd.DataFrame]) -> None:
     """
     Adds DQ exceptions for rows whose account_code is not in Chart of Accounts.
@@ -43,9 +44,7 @@ def _dq_account_in_coa(df: pd.DataFrame, dataset: str, coa_codes: set[str], issu
         bad["failure_case"] = bad["account_code"]
         bad["schema_context"] = "Column"
         bad["check_number"] = None
-        issues.append(
-            bad[["dataset", "index", "column", "check", "failure_case", "schema_context", "check_number"]]
-        )
+        issues.append(bad[["dataset", "index", "column", "check", "failure_case", "schema_context", "check_number"]])
 
 
 def run_month(
@@ -72,10 +71,8 @@ def run_month(
         dtype={"account_code": str, "account_name": str, "account_type": str},
     )
     dim_accounts = build_dim_accounts(coa)
-    
-    coa_codes = set(dim_accounts["account_code"].astype(str).unique())
 
-    
+    coa_codes = set(dim_accounts["account_code"].astype(str).unique())
 
     # Raw (force IDs/codes to strings)
     sales = read_csv(
@@ -129,7 +126,6 @@ def run_month(
     _dq_account_in_coa(v_sales, "sales", coa_codes, issues)
     _dq_account_in_coa(v_exp, "expenses", coa_codes, issues)
 
-
     dq_exceptions_path = curated_dir / "dq_exceptions.csv"
     dq_summary_path = curated_dir / "dq_summary.csv"
 
@@ -147,9 +143,7 @@ def run_month(
 
         # Fail behavior controlled here
         if overall == "FAIL" and fail_on != "NEVER":
-            raise ValueError(
-                f"Data quality checks failed. See {dq_exceptions_path} and {dq_summary_path}"
-            )
+            raise ValueError(f"Data quality checks failed. See {dq_exceptions_path} and {dq_summary_path}")
     else:
         # Write empty audit trail files with expected columns
         empty_ex = pd.DataFrame(
@@ -195,4 +189,3 @@ def run_month(
         "dim_accounts": out_dim,
         "kpi": out_kpi,
     }
-
