@@ -5,6 +5,7 @@ from pathlib import Path
 
 from finance_etl.sample_data import generate_synthetic_raw
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--month", default="2025-12")
