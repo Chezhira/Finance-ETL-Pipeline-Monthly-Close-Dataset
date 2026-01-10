@@ -2,6 +2,7 @@
 
 import argparse
 from pathlib import Path
+
 import pandas as pd
 
 
@@ -56,7 +57,11 @@ def _infer_month(kpi: pd.DataFrame) -> str | None:
     return months[-1] if months else None
 
 
-def _filter_to_month_by_date(df: pd.DataFrame, date_col: str | None, month: str) -> pd.DataFrame:
+def _filter_to_month_by_date(
+    df: pd.DataFrame,
+    date_col: str | None,
+    month: str,
+) -> pd.DataFrame:
     if df.empty or not date_col or date_col not in df.columns:
         return df.copy()
     m = pd.to_datetime(df[date_col], errors="coerce").dt.strftime("%Y-%m")
@@ -70,28 +75,21 @@ def _ensure_dir(p: Path) -> None:
 # ---------- Builders ----------
 def build_dim_entity(fact: pd.DataFrame, kpi: pd.DataFrame) -> pd.DataFrame:
     entities = set()
-
     for df in [fact, kpi]:
         if not df.empty and "entity" in df.columns:
             entities.update(df["entity"].dropna().astype(str).unique().tolist())
-
     ent_sorted = sorted([e for e in entities if e.strip() != ""])
     dim = pd.DataFrame({"entity": ent_sorted})
     dim["entity_key"] = range(1, len(dim) + 1)
 
-    # Optional extra fields if present
-    # e.g. currency column exists in fact/kpi
+    # Optional extra fields if present (e.g., currency exists in fact/kpi)
     for extra in ["currency", "base_currency", "country"]:
         col = extra if (not fact.empty and extra in fact.columns) else None
         if col:
             # naive mapping: first non-null per entity
-            m = (
-                fact.dropna(subset=["entity", col])
-                .groupby("entity")[col]
-                .first()
-                .to_dict()
-            )
+            m = fact.dropna(subset=["entity", col]).groupby("entity")[col].first().to_dict()
             dim[extra] = dim["entity"].map(m)
+
     return dim[["entity_key", "entity"] + [c for c in dim.columns if c not in ["entity_key", "entity"]]]
 
 
@@ -141,17 +139,34 @@ def build_dim_date(fact_m: pd.DataFrame, date_col: str) -> pd.DataFrame:
     dim["day"] = dim["date"].dt.day
     dim["month_key"] = dim["date"].dt.strftime("%Y%m").astype(int)
     dim["month_label"] = dim["date"].dt.strftime("%Y-%m")
-    return dim[["date_key", "date", "year", "quarter", "month_key", "month_label", "month", "month_name", "week", "day"]]
+
+    return dim[
+        [
+            "date_key",
+            "date",
+            "year",
+            "quarter",
+            "month_key",
+            "month_label",
+            "month",
+            "month_name",
+            "week",
+            "day",
+        ]
+    ]
 
 
 def build_dim_month(dim_date: pd.DataFrame) -> pd.DataFrame:
     if dim_date.empty:
-        return pd.DataFrame(columns=["month_key", "month_label", "year", "quarter", "month", "month_name", "month_start_date_key"])
+        return pd.DataFrame(
+            columns=["month_key", "month_label", "year", "quarter", "month", "month_name", "month_start_date_key"]
+        )
 
-    m = (
-        dim_date.groupby(["month_key", "month_label", "year", "quarter", "month", "month_name"], as_index=False)
-        .agg(month_start_date_key=("date_key", "min"))
-    )
+    m = dim_date.groupby(
+        ["month_key", "month_label", "year", "quarter", "month", "month_name"],
+        as_index=False,
+    ).agg(month_start_date_key=("date_key", "min"))
+
     return m.sort_values("month_key").reset_index(drop=True)
 
 
@@ -184,7 +199,9 @@ def build_fact_gl(
     else:
         # if only debit/credit exist
         if debit_col in out.columns and credit_col in out.columns:
-            out["amount"] = pd.to_numeric(out[debit_col], errors="coerce").fillna(0) - pd.to_numeric(out[credit_col], errors="coerce").fillna(0)
+            out["amount"] = pd.to_numeric(out[debit_col], errors="coerce").fillna(0) - pd.to_numeric(
+                out[credit_col], errors="coerce"
+            ).fillna(0)
         else:
             out["amount"] = pd.NA
 
@@ -197,19 +214,41 @@ def build_fact_gl(
         out["date_key"] = pd.NA
         out["month_key"] = pd.NA
 
-    # Map entity/account keys
-    ent_map = dict(zip(dim_entity["entity"].astype(str), dim_entity["entity_key"]))
-    acc_map = dict(zip(dim_account["account_code"].astype(str), dim_account["account_key"]))
+    # Map entity/account keys (add strict=True for Ruff B905)
+    ent_map = dict(
+        zip(
+            dim_entity["entity"].astype(str),
+            dim_entity["entity_key"],
+            strict=True,
+        )
+    )
+    acc_map = dict(
+        zip(
+            dim_account["account_code"].astype(str),
+            dim_account["account_key"],
+            strict=True,
+        )
+    )
 
     out["entity"] = out.get("entity", pd.Series([None] * len(out))).astype(str)
     out["account_code"] = out.get("account_code", pd.Series([None] * len(out))).astype(str)
-
     out["entity_key"] = out["entity"].map(ent_map)
     out["account_key"] = out["account_code"].map(acc_map)
 
     # Keep useful passthrough columns (ids, references) if present
-    passthrough = []
-    for c in ["transaction_id", "move_id", "journal_id", "journal_name", "reference", "description", "partner", "vendor", "customer", "source_system"]:
+    passthrough: list[str] = []
+    for c in [
+        "transaction_id",
+        "move_id",
+        "journal_id",
+        "journal_name",
+        "reference",
+        "description",
+        "partner",
+        "vendor",
+        "customer",
+        "source_system",
+    ]:
         if c in out.columns:
             passthrough.append(c)
 
@@ -219,15 +258,34 @@ def build_fact_gl(
 
 def build_fact_kpi_monthly(kpi: pd.DataFrame, dim_entity: pd.DataFrame, month: str) -> pd.DataFrame:
     if kpi.empty:
-        return pd.DataFrame(columns=["month_key", "entity_key", "Asset", "COGS", "Expense", "Revenue", "gross_profit", "operating_profit", "gross_margin_pct", "operating_margin_pct"])
+        return pd.DataFrame(
+            columns=[
+                "month_key",
+                "entity_key",
+                "Asset",
+                "COGS",
+                "Expense",
+                "Revenue",
+                "gross_profit",
+                "operating_profit",
+                "gross_margin_pct",
+                "operating_margin_pct",
+            ]
+        )
 
     out = kpi.copy()
     if "month" in out.columns:
         out["month"] = out["month"].map(_to_month_str)
         out = out.loc[out["month"] == month].copy()
 
-    # Map entity key
-    ent_map = dict(zip(dim_entity["entity"].astype(str), dim_entity["entity_key"]))
+    # Map entity key (add strict=True for Ruff B905)
+    ent_map = dict(
+        zip(
+            dim_entity["entity"].astype(str),
+            dim_entity["entity_key"],
+            strict=True,
+        )
+    )
     out["entity"] = out["entity"].astype(str)
     out["entity_key"] = out["entity"].map(ent_map)
 
@@ -244,7 +302,20 @@ def build_fact_kpi_monthly(kpi: pd.DataFrame, dim_entity: pd.DataFrame, month: s
             op = pd.to_numeric(out["operating_profit"], errors="coerce")
             out["operating_margin_pct"] = (op / rev) * 100
 
-    keep = ["month_key", "entity_key"] + [c for c in ["Asset", "COGS", "Expense", "Revenue", "gross_profit", "operating_profit", "gross_margin_pct", "operating_margin_pct"] if c in out.columns]
+    keep = ["month_key", "entity_key"] + [
+        c
+        for c in [
+            "Asset",
+            "COGS",
+            "Expense",
+            "Revenue",
+            "gross_profit",
+            "operating_profit",
+            "gross_margin_pct",
+            "operating_margin_pct",
+        ]
+        if c in out.columns
+    ]
     return out[keep].copy()
 
 
@@ -257,7 +328,6 @@ def main() -> int:
     args = ap.parse_args()
 
     curated = Path(args.curated_dir)
-
     fact = _read_parquet(curated / "fact_transactions.parquet")
     dim_accounts_src = _read_parquet(curated / "dim_accounts.parquet")
     kpi = _read_parquet(curated / "kpi_monthly.parquet")
@@ -286,8 +356,23 @@ def main() -> int:
         dim_date = build_dim_date(fact_m, date_col)
         dim_month = build_dim_month(dim_date)
     else:
-        dim_date = pd.DataFrame(columns=["date_key", "date", "year", "quarter", "month_key", "month_label", "month", "month_name", "week", "day"])
-        dim_month = pd.DataFrame(columns=["month_key", "month_label", "year", "quarter", "month", "month_name", "month_start_date_key"])
+        dim_date = pd.DataFrame(
+            columns=[
+                "date_key",
+                "date",
+                "year",
+                "quarter",
+                "month_key",
+                "month_label",
+                "month",
+                "month_name",
+                "week",
+                "day",
+            ]
+        )
+        dim_month = pd.DataFrame(
+            columns=["month_key", "month_label", "year", "quarter", "month", "month_name", "month_start_date_key"]
+        )
 
     # Build facts
     fact_gl = build_fact_gl(fact_m, dim_entity, dim_account, date_col)
@@ -302,20 +387,29 @@ def main() -> int:
     fact_kpi.to_csv(out_dir / "fact_kpi_monthly.csv", index=False)
 
     # Modeling notes (Power BI relationships)
-    notes = []
+    notes: list[str] = []
     notes.append(f"month={month}")
     notes.append("")
     notes.append("Suggested Power BI Relationships:")
-    notes.append("  fact_gl[date_key]      -> dim_date[date_key] (Many-to-1, single)")
-    notes.append("  fact_gl[entity_key]    -> dim_entity[entity_key] (Many-to-1, single)")
-    notes.append("  fact_gl[account_key]   -> dim_account[account_key] (Many-to-1, single)")
-    notes.append("  fact_gl[month_key]     -> dim_month[month_key] (Many-to-1, single)  (optional)")
+    notes.append("  fact_gl[date_key] -> dim_date[date_key] (Many-to-1, single)")
+    notes.append("  fact_gl[entity_key] -> dim_entity[entity_key] (Many-to-1, single)")
+    notes.append("  fact_gl[account_key] -> dim_account[account_key] (Many-to-1, single)")
+    notes.append("  fact_gl[month_key] -> dim_month[month_key] (Many-to-1, single) (optional)")
     notes.append("  fact_kpi_monthly[entity_key] -> dim_entity[entity_key] (Many-to-1, single)")
-    notes.append("  fact_kpi_monthly[month_key]  -> dim_month[month_key] (Many-to-1, single)")
+    notes.append("  fact_kpi_monthly[month_key] -> dim_month[month_key] (Many-to-1, single)")
     notes.append("")
     notes.append("Files:")
-    for f in ["dim_date.csv", "dim_month.csv", "dim_entity.csv", "dim_account.csv", "fact_gl.csv", "fact_kpi_monthly.csv"]:
+    files = [
+        "dim_date.csv",
+        "dim_month.csv",
+        "dim_entity.csv",
+        "dim_account.csv",
+        "fact_gl.csv",
+        "fact_kpi_monthly.csv",
+    ]
+    for f in files:
         notes.append(f"  - {f}")
+
     (out_dir / "POWERBI_MODEL_NOTES.txt").write_text("\n".join(notes), encoding="utf-8")
 
     print(str(out_dir.resolve()))

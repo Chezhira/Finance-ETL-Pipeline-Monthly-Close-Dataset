@@ -2,8 +2,8 @@
 
 import argparse
 from pathlib import Path
-import pandas as pd
 
+import pandas as pd
 
 KPI_COLS = ["entity", "month", "Asset", "COGS", "Expense", "Revenue", "gross_profit", "operating_profit"]
 
@@ -95,7 +95,9 @@ def main() -> int:
         kpi_m = kpi2.copy()
 
     # Keep KPI columns in a stable order (if present)
-    keep_kpi = [c for c in KPI_COLS if c in kpi_m.columns] + [c for c in ["gross_margin_pct", "operating_margin_pct"] if c in kpi_m.columns]
+    keep_kpi = [c for c in KPI_COLS if c in kpi_m.columns] + [
+        c for c in ["gross_margin_pct", "operating_margin_pct"] if c in kpi_m.columns
+    ]
     if not kpi_m.empty and keep_kpi:
         kpi_m = kpi_m[keep_kpi]
 

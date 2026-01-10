@@ -1,8 +1,9 @@
 ﻿from __future__ import annotations
 
 import argparse
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 
 try:
@@ -96,9 +97,7 @@ def build_dashboard(curated_dir: Path, month: str | None, out_html: Path) -> Pat
 
     if not kpi2.empty and all(c in kpi2.columns for c in ["entity", "month", "Revenue"]):
         # keep top entities by Revenue across all months for readability
-        top_entities = (
-            kpi2.groupby("entity")["Revenue"].sum().sort_values(ascending=False).head(8).index.tolist()
-        )
+        top_entities = kpi2.groupby("entity")["Revenue"].sum().sort_values(ascending=False).head(8).index.tolist()
         kpi_top = kpi2.loc[kpi2["entity"].isin(top_entities)].sort_values(["month", "entity"])
 
         fig = px.line(
@@ -126,19 +125,17 @@ def build_dashboard(curated_dir: Path, month: str | None, out_html: Path) -> Pat
     kpi_table_html = "<p class='muted'>No KPI rows for this month.</p>"
     if not kpi2.empty and all(c in kpi2.columns for c in ["entity", "month"]):
         kpi_m = kpi2.loc[kpi2["month"] == month].copy()
-        keep = ["entity", "month"] + [c for c in KPI_COLS if c in kpi_m.columns] + [
-            c for c in ["gross_margin_pct", "operating_margin_pct"] if c in kpi_m.columns
-        ]
+        keep = (
+            ["entity", "month"]
+            + [c for c in KPI_COLS if c in kpi_m.columns]
+            + [c for c in ["gross_margin_pct", "operating_margin_pct"] if c in kpi_m.columns]
+        )
         if not kpi_m.empty:
             # formatting
             for c in keep:
                 if c not in ["entity", "month"]:
                     kpi_m[c] = pd.to_numeric(kpi_m[c], errors="coerce")
-            kpi_table_html = (
-                kpi_m[keep]
-                .sort_values("entity")
-                .to_html(index=False, float_format=lambda x: f"{x:,.2f}")
-            )
+            kpi_table_html = kpi_m[keep].sort_values("entity").to_html(index=False, float_format=lambda x: f"{x:,.2f}")
 
     # Expense chart (Top expense accounts, absolute value)
     exp_chart_html = "<p class='muted'>No expense chart available.</p>"
@@ -163,19 +160,18 @@ def build_dashboard(curated_dir: Path, month: str | None, out_html: Path) -> Pat
                 df["_label"] = df["_label"] + " - " + df[name_col].astype(str)
 
             df["_abs"] = pd.to_numeric(df[amt_col], errors="coerce").abs()
-            top = (
-                df.groupby("_label")["_abs"].sum()
-                .sort_values(ascending=False)
-                .head(15)
-                .reset_index()
-            )
+            top = df.groupby("_label")["_abs"].sum().sort_values(ascending=False).head(15).reset_index()
             if not top.empty:
                 fig = px.bar(top, x="_abs", y="_label", orientation="h", title="Top Expense Accounts (Abs Value)")
                 exp_chart_html = fig.to_html(full_html=False, include_plotlyjs=False)
 
     # DQ tables
-    dq_sum_html = dq_sum.head(200).to_html(index=False) if not dq_sum.empty else "<p class='muted'>No dq_summary.csv</p>"
-    dq_ex_html = dq_ex.head(200).to_html(index=False) if not dq_ex.empty else "<p class='muted'>No dq_exceptions.csv</p>"
+    dq_sum_html = (
+        dq_sum.head(200).to_html(index=False) if not dq_sum.empty else "<p class='muted'>No dq_summary.csv</p>"
+    )
+    dq_ex_html = (
+        dq_ex.head(200).to_html(index=False) if not dq_ex.empty else "<p class='muted'>No dq_exceptions.csv</p>"
+    )
 
     # Build HTML
     out_html.parent.mkdir(parents=True, exist_ok=True)
