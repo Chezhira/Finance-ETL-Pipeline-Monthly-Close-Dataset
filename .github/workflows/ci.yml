@@ -1,5 +1,6 @@
 ﻿
 name: CI
+
 on:
   push:
     branches:
@@ -15,7 +16,7 @@ jobs:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
 
-    # Disable colorized output globally in CI
+    # ✅ Global safeguard: disable ANSI colors in CI logs
     env:
       NO_COLOR: "1"
       CLICK_DISABLE_COLOR: "1"
@@ -35,12 +36,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # App/runtime deps (if you use requirements.txt)
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           else
+            # If no requirements.txt, install the project in editable mode
             pip install -e .
           fi
-          pip install pytest  # ✅ ensure pytest is available in CI
+
+          # Test/dev deps (pytest, etc.)
+          pip install -r requirements-dev.txt
 
       - name: Run tests
         run: pytest -q
+``
