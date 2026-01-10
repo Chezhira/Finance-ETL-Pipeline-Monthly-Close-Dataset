@@ -1,7 +1,7 @@
 ﻿from typer.testing import CliRunner
 from finance_etl.cli import app
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner()  # compatible with older Typer/Click in CI
 
 def test_run_help_has_options():
     result = runner.invoke(app, ["run", "--help"], color=False)
