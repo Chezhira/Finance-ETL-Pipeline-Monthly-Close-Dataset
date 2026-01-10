@@ -1,7 +1,7 @@
 # **Finance ETL Pipeline**  
 *(Monthly Close Dataset)*  
 
-!CI
+[![CI](https://github.com/ziddm/finance-etl-pipeline/actions/work
 
 Portfolio-grade data engineering mini-project producing validated, curated **Parquet datasets** for dashboards and FP&A.
 
