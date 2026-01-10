@@ -1,0 +1,13 @@
+account_key,account_code,account_name,account_type
+1,10000001,Cash at Bank,Asset
+2,11000001,Accounts Receivable,Asset
+3,20000001,Accounts Payable,Liability
+4,21000001,VAT Payable,Liability
+5,40000001,Sales - Export,Revenue
+6,40000002,Sales - Local,Revenue
+7,50000001,COGS - Inventory,COGS
+8,61000001,Salaries & Wages,Expense
+9,61000002,Payroll Taxes,Expense
+10,62000001,Rent,Expense
+11,63000001,Travel & Subsistence,Expense
+12,64000001,Bank Charges,Expense

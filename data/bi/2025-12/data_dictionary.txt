@@ -1,0 +1,6 @@
+month=2025-12
+fact_transactions.csv columns=['txn_id', 'date', 'entity', 'source', 'document_id', 'account_code', 'currency', 'amount', 'rate', 'amount_base', 'description', 'month']
+dim_accounts.csv columns=['account_code', 'account_name', 'account_type']
+kpi_monthly.csv columns=['entity', 'month', 'Asset', 'COGS', 'Expense', 'Revenue', 'gross_profit', 'operating_profit', 'gross_margin_pct', 'operating_margin_pct']
+dq_summary.csv columns=['dataset', 'error_count', 'warn_count', 'issue_count', 'status']
+dq_exceptions.csv columns=['dataset', 'index', 'column', 'check', 'failure_case', 'schema_context', 'check_number', 'severity']

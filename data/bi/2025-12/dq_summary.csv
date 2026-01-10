@@ -1,0 +1,6 @@
+dataset,error_count,warn_count,issue_count,status
+sales,0,0,0,PASS
+expenses,0,0,0,PASS
+payroll,0,0,0,PASS
+inventory_movements,0,0,0,PASS
+fx_rates,0,0,0,PASS

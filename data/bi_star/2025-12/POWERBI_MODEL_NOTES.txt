@@ -1,0 +1,17 @@
+month=2025-12
+
+Suggested Power BI Relationships:
+  fact_gl[date_key]      -> dim_date[date_key] (Many-to-1, single)
+  fact_gl[entity_key]    -> dim_entity[entity_key] (Many-to-1, single)
+  fact_gl[account_key]   -> dim_account[account_key] (Many-to-1, single)
+  fact_gl[month_key]     -> dim_month[month_key] (Many-to-1, single)  (optional)
+  fact_kpi_monthly[entity_key] -> dim_entity[entity_key] (Many-to-1, single)
+  fact_kpi_monthly[month_key]  -> dim_month[month_key] (Many-to-1, single)
+
+Files:
+  - dim_date.csv
+  - dim_month.csv
+  - dim_entity.csv
+  - dim_account.csv
+  - fact_gl.csv
+  - fact_kpi_monthly.csv
