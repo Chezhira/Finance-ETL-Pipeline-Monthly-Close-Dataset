@@ -5,19 +5,19 @@ from pathlib import Path
 import pandas as pd
 
 from .config import Settings
-from .io_utils import read_csv, write_parquet, write_csv
+from .io_utils import read_csv, write_csv, write_parquet
 from .quality import (
-    validate_or_collect,
-    sales_schema,
-    expenses_schema,
-    payroll_schema,
-    inventory_schema,
-    fx_schema,
     add_severity,
     dq_overall_status,
     dq_summary_table,
+    expenses_schema,
+    fx_schema,
+    inventory_schema,
+    payroll_schema,
+    sales_schema,
+    validate_or_collect,
 )
-from .transform import build_dim_accounts, fx_to_base, to_fact_transactions, kpi_monthly
+from .transform import build_dim_accounts, fx_to_base, kpi_monthly, to_fact_transactions
 
 
 def _month_window(month: str) -> tuple[pd.Timestamp, pd.Timestamp]:

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import pandas as pd
 
 from finance_etl.config import settings
 from finance_etl.pipeline import run_month
 from finance_etl.sample_data import generate_synthetic_raw
+
 
 def test_pipeline_smoke(tmp_path: Path) -> None:
     raw_dir = tmp_path / "raw"

@@ -1,5 +1,5 @@
 
-from typer import Typer, Option
+from typer import Option, Typer
 
 # Force a multi-command app (group) and show help when no args are given
 app = Typer(help="Finance ETL CLI", no_args_is_help=True, add_completion=False)

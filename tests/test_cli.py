@@ -1,5 +1,7 @@
 ﻿import re
+
 from typer.testing import CliRunner
+
 from finance_etl.cli import app
 
 # Regex to remove ANSI escape sequences (e.g., \x1b[1m)

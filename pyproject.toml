@@ -1,8 +1,10 @@
 
+# -------------------- Build system --------------------
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
+# -------------------- Project metadata --------------------
 [project]
 name = "finance-etl"
 version = "0.1.0"
@@ -12,6 +14,7 @@ requires-python = ">=3.10"
 authors = [{ name = "Zahidah Murira" }]
 license = { text = "MIT" }
 keywords = ["ETL", "finance", "monthly close", "data quality"]
+
 # Keep deps minimal; expand as your code requires
 dependencies = [
   "pandas>=2.1",
@@ -31,30 +34,44 @@ Issues = "https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset
 # Exposes `finance-etl` on PATH after install
 finance-etl = "finance_etl.cli:app"
 
-# ---------- Tooling (all optional but recommended) ----------
+# -------------------- Tooling --------------------
+
+# Black formatter: keep consistent with Ruff (line-length=120)
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ["py310"]
 
+# Ruff: modern config (use [tool.ruff.lint] for lint options)
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py310"
-select = ["E","F","I","B","UP"]
-ignore = ["E203"]           # if you prefer Black-compatible slicing rules
-exclude = ["data","dist",".venv","venv",".git"]
+# Exclusions belong at top-level Ruff section
+exclude = ["data", "dist", ".venv", "venv", ".git"]
 
+[tool.ruff.lint]
+# Move previous 'select'/'ignore' here (deprecation fix)
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E203"]  # keep Black-compatible slicing rule, if desired
+
+# Optional: Ruff formatter settings (only if you use ruff format; safe to keep)
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# mypy: strict by default; relax if needed per-file later
 [tool.mypy]
 python_version = "3.10"
 strict = true
 ignore_missing_imports = true
 exclude = "data|dist|.venv|venv|.git"
 
+# pytest: quiet by default, tests under 'tests/'
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]
 addopts = "-q"
 
-# (Optional) coverage if you wire it up in CI later
+# Coverage (optional) if you wire it up in CI later
 [tool.coverage.run]
 branch = true
 source = ["src/finance_etl"]

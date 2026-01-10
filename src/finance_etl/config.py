@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 from pydantic import BaseModel
+
 
 class Settings(BaseModel):
     base_currency: str = "USD"

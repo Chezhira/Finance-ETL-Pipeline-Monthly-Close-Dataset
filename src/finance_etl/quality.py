@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 import pandera.pandas as pa
-from pandera import Column, Check
+from pandera import Check, Column
+
 
 def _dup_check(keys: list[str], label: str) -> Check:
     return Check(
@@ -107,7 +108,6 @@ def validate_or_collect(
         issues.append(fc)
         return None
 # --- DQ severity + summary helpers (audit-ready) ---
-import pandas as pd
 
 DATASETS = ["sales", "expenses", "payroll", "inventory_movements", "fx_rates"]
 

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
+
 
 def generate_synthetic_raw(out_dir: Path, month: str = "2025-12", seed: int = 42) -> None:
     out_dir = Path(out_dir)

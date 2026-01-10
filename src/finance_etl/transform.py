@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
+
 def build_dim_accounts(chart_of_accounts: pd.DataFrame) -> pd.DataFrame:
     dim = chart_of_accounts.copy()
     dim["account_code"] = dim["account_code"].astype(str)
