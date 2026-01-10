@@ -1,13 +1,21 @@
-# **Finance ETL Pipeline**  
-*(Monthly Close Dataset)*  
+# Finance ETL Pipeline
+*(Monthly Close Dataset)*
 
-<!-- Badges -->
-![CI](https://github.com/ziddm/finance-etl-pipeline/actions/work
-!Chez Solutions
-![Python](https://img.shields.io/bmg.shields.io/badge/License-MIT-green.svg
+<p align="center">
+  <a href="https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset-">
+    <img src="https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset-" alt="CI Status">
+  </a>
+  <img src="https://img.shields.io/badge/Chez%20Solutions-Project-blue?style=flat-square" alt="Chez Solutions/Python-3.10%20|%203.11%20|%203.12-blue?logo=python
+  LICENSE<img src="https://img.shieldsLicense-MIT-green.svg</a>
+  https://github.com/astral-sh/ruff<img src="https://img.shields.io/badge/Lint-Ruff-4B8BBE?logo>
+  https://github.com/psf/blackhttps://img.shields.io/badge/Format-Black-000000</a>
+  https://pre-commit.com/https://img.shields.io/badge/hooks-pre--commit-FFB000?logo=pre-commit</a>
+</p>
 
+---
 
-Portfolio-grade data engineering mini-project producing validated, curated **Parquet datasets** for dashboards and FP&A.
+**A portfolio-grade data engineering mini-project** that turns messy monthly finance extracts into **validated, curated Parquet datasets** for dashboards and FP&A.
+
 
 ---
 
