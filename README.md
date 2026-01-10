@@ -5,126 +5,103 @@
   <a href="https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset-">
     <img src="https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset-" alt="CI Status">
   </a>
-  <img src="https://img.shields.io/badge/Chez%20Solutions-Project-blue?style=flat-square" alt="Chez Solutions/Python-3.10%20|%203.11%20|%203.12-blue?logo=python
-  LICENSE<img src="https://img.shieldsLicense-MIT-green.svg</a>
-  https://github.com/astral-sh/ruff<img src="https://img.shields.io/badge/Lint-Ruff-4B8BBE?logo>
+  https://img.shields.io/badge/Chez%20Solutions-Project-blue?style=flat-square
+  https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12-blue?logo=python
+  LICENSEhttps://img.shields.io/badge/License-MIT-green.svg</a>
+  https://github.com/astral-sh/ruffhttps://img.shields.io/badge/Lint-Ruff-4B8BBE?logo=python</a>
   https://github.com/psf/blackhttps://img.shields.io/badge/Format-Black-000000</a>
   https://pre-commit.com/https://img.shields.io/badge/hooks-pre--commit-FFB000?logo=pre-commit</a>
 </p>
 
 ---
 
-**A portfolio-grade data engineering mini-project** that turns messy monthly finance extracts into **validated, curated Parquet datasets** for dashboards and FP&A.
-
+## 🌟 Project Highlights
+- ✅ **Portfolio-grade ETL pipeline** for monthly financial close.
+- ✅ **Validated, curated Parquet datasets** for dashboards and FP&A.
+- ✅ **Star-schema outputs** for BI tools (Power BI, Tableau).
+- ✅ **Built-in data quality checks** and KPI calculations.
+- ✅ **CI/CD with linting, formatting, tests, and security audit**.
+- ✅ **Pre-commit hooks** to keep code clean locally.
+- ✅ **Modern Python tooling**: Ruff, Black, pytest, GitHub Actions.
 
 ---
 
-## **Repository & CI**
-- **Repository:** GitHub (see README for CI badge)  
-- **CI:** GitHub Actions workflow status shown in README  
+## 📌 Overview
+A **data engineering mini-project** that turns messy monthly finance extracts into **validated, curated datasets** ready for analytics.
 
 ---
 
-## **Architecture Overview**
+## 🏗 Architecture
+
+```mermaid
+flowchart LR
+    A[Raw CSV Files] --> B[Curated Parquet Layer]
+    B --> C[ETL Processing: Validation & Transformation]
+    C --> D[Star Schema CSVs]
+    D --> E[Power BI / Dashboard]
+    
+    subgraph ETL Pipeline
+        B --> C
+    end
 ```
-+-----------+      +-----------+      +-----------+      +-----------+
-|   Raw     | ---> |  Staging  | ---> | Transform | ---> |  Curated  |
-|  CSVs     |      |  Cleaned  |      |  DQ + FX  |      | Parquet + |
-| (Extract) |      |  Types OK |      |  Rules    |      | DQ Reports|
-+-----------+      +-----------+      +-----------+      +-----------+
-```
 
 ---
 
-## **Quickstart**
-### 1. Install package locally
+## 🔄 CI/CD Workflow
+
+*(Details of GitHub Actions workflow go here)*
+
+---
+
+## 🚀 Quickstart
+
 ```bash
+# Clone repo
+git clone https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset.git
+cd Finance-ETL-Pipeline-Monthly-Close-Dataset
+
+# Install dependencies
 pip install -e .
-```
+pip install -r requirements-dev.txt
 
-### 2. Generate one month of synthetic data
-```bash
+# Generate synthetic data
 python scripts/generate_synthetic_data.py --month 2025-12 --out-dir data/raw
-```
 
-### 3. Run the pipeline with strict DQ checks
-```bash
-finance-etl run --month 2025-12 --fail-on ERROR
-```
-
-### 4. Run tests
-```bash
-pytest -q
+# Run ETL pipeline
+finance-etl run --month 2025-12
 ```
 
 ---
 
-## **Business Problem**
-Monthly close data often comes from multiple sources (sales, expenses, payroll, FX, inventory) and usually arrives with:
-- inconsistent formats (dates, currencies)
-- silent type problems (IDs treated as numbers)
-- duplicates / missing keys
-- FX conversion inconsistencies  
+## 📜 Data Contracts
 
-This creates **rework, wrong KPIs, and stress during audit/tax season**.  
-**This pipeline solves it by enforcing data quality rules and producing a single trusted dataset each month.**
+* **fact_transactions.parquet** → GL transactions
+* **dim_accounts.parquet** → Chart of accounts
+* **kpi_monthly.parquet** → KPI metrics
 
 ---
 
-## **Outputs**
-After a run, the pipeline produces:
-- `data/curated/fact_transactions.parquet` — unified transaction-level dataset (base currency)
-- `data/curated/dim_accounts.parquet` — chart of accounts dimension
-- `data/curated/kpi_monthly.parquet` — monthly KPIs for dashboards
-- `data/curated/dq_exceptions.csv` — row-level DQ failures (audit trail)
-- `data/curated/dq_summary.csv` — PASS/FAIL summary (controls)
+## ✅ Data Quality Controls
+
+* Null checks
+* Referential integrity (entity/account keys)
+* KPI consistency checks
 
 ---
 
-## **Data Contracts**
-Define expected columns, types, and rules for raw inputs.
+## 📊 Outputs & KPIs
 
-### **transactions.csv**
-| Column       | Type  | Rules                                  |
-|-------------|-------|----------------------------------------|
-| entity      | str   | Non-null, length ≤ 10                |
-| account_code| str   | Must exist in dim_accounts           |
-| amount      | float | -1e9 ≤ amount ≤ 1e9                 |
-| currency    | str   | One of ["TZS", "USD", "EUR"]        |
-| tx_date     | date  | ≤ today                              |
-
-### **accounts.csv**
-| Column       | Type  | Rules                                  |
-|-------------|-------|----------------------------------------|
-| account_code| str   | Unique, non-null                      |
-| account_name| str   | Non-null                              |
-| account_type| str   | One of ["Asset", "Liability", "Revenue", "Expense"] |
-
-### **fx_rates.csv**
-| Column       | Type  | Rules                                  |
-|-------------|-------|----------------------------------------|
-| currency    | str   | One of ["TZS", "USD", "EUR"]          |
-| rate        | float | > 0                                   |
-| effective_date| date| ≤ today                                |
+* **Star schema CSVs:** `dim_date.csv`, `dim_month.csv`, `dim_entity.csv`, `dim_account.csv`, `fact_gl.csv`, `fact_kpi_monthly.csv`
+* KPIs: Revenue, Expense, Gross Margin %, Operating Margin %
 
 ---
 
-## **Data Quality Controls**
-`--fail-on` controls when the pipeline stops:
-- **ERROR (default):** fail only if critical issues exist
-- **WARN:** fail if any issues exist
-- **NEVER:** always produce outputs, but write DQ reports  
+## 🤝 Contributing
 
-Example:
-```bash
-finance-etl run --month 2025-12 --fail-on WARN
-```
+Pull requests are welcome!Run `pre-commit run --all-files` before committing to keep CI green.
 
 ---
 
-## **Example KPI Output**
-Sample rows from `data/curated/kpi_monthly.parquet`:
-| entity | month    | Asset    | COGS      | Expense   | Revenue   | gross_profit | operating_profit |
-|--------|----------|----------|-----------|-----------|-----------|--------------|------------------|
-| TLM    | 2025-12  | 4771.96  | -15648.55 | -38682.57 | 48129.36  | 32480.81     | -6201.76         |
-| UPE    | 2025-12  | 12717.67 | -17281.12 | -31250.48 | 30050.52  | 12769.40     | -18481.08        |
+## 📄 License
+
+MIT License © 2026 Chez Solutions

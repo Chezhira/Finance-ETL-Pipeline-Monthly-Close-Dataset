@@ -1,27 +1,46 @@
-﻿# Python
+# Python artifacts
 __pycache__/
-*.py[cod]
-*.pyd
+*.pyc
 *.pyo
+*.pyd
 *.egg-info/
-.dist/
-build/
+.eggs/
+*.egg
 
-# Envs
+# Virtual environments
 .venv/
-.env/
+venv/
+ENV/
 
-# Data (local only)
-data/raw/
-data/curated/
+# IDE settings
+.vscode/
+.idea/
 
-# Tooling
-.pytest_cache/
-.mypy_cache/
-ruff_cache/
-coverage.xml
+# Logs and cache
+*.log
+logs/
+.cache/
+
+# Data outputs
+/data/raw/
+/data/curated/
+/data/output/
+*.parquet
+*.csv
+
+# Reports and temp files
+reports/
+*.tmp
+*.bak
+
+# Coverage and test artifacts
+.coverage
 htmlcov/
+.pytest_cache/
 
-# OS
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS-specific files
 .DS_Store
 Thumbs.db
