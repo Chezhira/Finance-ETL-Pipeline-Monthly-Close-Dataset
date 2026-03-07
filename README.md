@@ -1,131 +1,148 @@
-# Finance ETL Pipeline
+# Finance ETL Pipeline — Monthly Close Dataset
 
-<p align="center">
-  <a href="https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset">
-    <img src="https://img.shields.io/badge/Chez%20Solutions-Project-blue?style=flat-square" alt="Chez Solutions">
-  </a>
-  <img src="https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12-blue?logo=python" alt="Python Versions">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  <img src="https://img.shields.io/badge/Lint-Ruff-4B8BBE?logo=python" alt="Lint Ruff">
-  <img src="https://img.shields.io/badge/Format-Black-000000" alt="Format Black">
-  <img src="https://img.shields.io/badge/hooks-pre--commit-FFB000?logo=pre-commit" alt="Pre-commit Hooks">
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12-blue?logo=python&style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/Lint-Ruff-4B8BBE?logo=python&style=flat-square" alt="Ruff">
+  <img src="https://img.shields.io/badge/Format-Black-000000?style=flat-square" alt="Black">
+  <img src="https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&style=flat-square" alt="CI">
 </p>
 
 ---
 
-## 🌟 Project Highlights
-- ✅ **Portfolio-grade ETL pipeline** for monthly financial close.
-- ✅ **Validated, curated Parquet datasets** for dashboards and FP&A.
-- ✅ **Star-schema outputs** for BI tools (Power BI, Tableau).
-- ✅ **Built-in data quality checks** and KPI calculations.
-- ✅ **CI/CD with linting, formatting, tests, and security audit**.
-- ✅ **Pre-commit hooks** to keep code clean locally.
-- ✅ **Modern Python tooling**: Ruff, Black, pytest, GitHub Actions.
+Every month, a finance team pulls extracts from the ERP — sales invoices, expense bills, payroll runs, inventory movements, FX rates — and spends days cleaning, reconciling, and rebuilding the same reports from scratch. This pipeline automates that entire process: raw CSVs in, validated Parquet curated layer out, star-schema BI-ready outputs, and an interactive HTML dashboard — all from a single CLI command.
+
+Built to demonstrate production-grade data engineering applied to real finance problems.
 
 ---
 
-## 📌 Overview
-A **data engineering mini-project** that turns messy monthly finance extracts into **validated, curated datasets** ready for analytics.
+## What it does
 
----
-
-## 🏗 Architecture
-
-```mermaid
-flowchart LR
-    A[Raw CSV Files] --> B[Curated Parquet Layer]
-    B --> C[ETL Processing: Validation & Transformation]
-    C --> D[Star Schema CSVs]
-    D --> E[Power BI / Dashboard]
-    
-    subgraph ETL Pipeline
-        B --> C
-    end
+```
+Raw CSVs (sales, expenses, payroll, inventory, FX)
+    │
+    ▼
+Schema validation + Data quality checks
+    │
+    ▼
+Curated Parquet layer  (fact_transactions · dim_accounts · kpi_monthly)
+    │
+    ▼
+Star schema CSV export  (fact_gl · fact_kpi · dim_date · dim_entity · dim_account)
+    │
+    ▼
+HTML Dashboard  (KPI cards · P&L waterfall · entity contribution · top transactions)
 ```
 
+**Five datasets validated per run:** sales, expenses, payroll, COGS/inventory, FX rates — each with schema enforcement, null checks, currency whitelisting, and COA referential integrity. DQ exceptions written to audit CSV with ERROR/WARN severity grading.
+
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ```bash
-# Clone repo
 git clone https://github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset.git
 cd Finance-ETL-Pipeline-Monthly-Close-Dataset
-
-# Install dependencies
 pip install -e .
-pip install -r requirements-dev.txt
 
-# Generate synthetic data
+# 1. Generate synthetic data
 python scripts/generate_synthetic_data.py --month 2025-12 --out-dir data/raw
 
-# Run ETL pipeline
+# 2. Run the pipeline
 finance-etl run --month 2025-12
+
+# 3. Export star schema for Power BI / Tableau
+python scripts/export_powerbi_star_schema.py --month 2025-12
+
+# 4. Build the dashboard
+python scripts/build_dashboard.py --month 2025-12
 ```
+
+Dashboard renders to `reports/2025-12/dashboard.html` — open in any browser.
 
 ---
 
-## 🔄 How to Run (Cross-Platform)
+## CLI reference
 
-### **Linux/macOS**
-Use the provided **Makefile**:
 ```bash
-make setup        # Install dependencies
-make lint         # Lint code
-make format       # Format code
-make test         # Run tests
-make run MONTH=2025-12  # Run ETL for December 2025
-```
-
-### **Windows**
-Use the PowerShell task runner:
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .	asks.ps1 setup
-powershell -NoProfile -ExecutionPolicy Bypass -File .	asks.ps1 lint
-powershell -NoProfile -ExecutionPolicy Bypass -File .	asks.ps1 run -Month 2025-12
+finance-etl run --month 2025-12               # Standard run, fail on errors
+finance-etl run --month 2025-12 --fail-on WARN  # Stricter — fail on warnings too
+finance-etl run --month 2025-12 --fail-on NEVER # Run through all DQ issues
+finance-etl version
 ```
 
 ---
 
-## 🎯 Demo Workflow (Job Showcase)
-1. **Generate synthetic data**:
-   ```powershell
-   powershell -File .	asks.ps1 data -Month 2025-12
-   ```
-2. **Run ETL pipeline**:
-   ```powershell
-   powershell -File .	asks.ps1 run -Month 2025-12
-   ```
-3. **Check outputs**:
-   - `data/curated/*.parquet`
-   - `data/output/*.csv` (Star schema for BI tools)
+## Outputs
+
+| File | Description |
+|------|-------------|
+| `data/curated/fact_transactions.parquet` | All GL transactions, FX-converted to base currency |
+| `data/curated/dim_accounts.parquet` | Chart of accounts dimension |
+| `data/curated/kpi_monthly.parquet` | Revenue, COGS, Expense, Gross Profit, Operating Profit per entity |
+| `data/curated/dq_exceptions.csv` | Row-level DQ exceptions with severity |
+| `data/curated/dq_summary.csv` | Dataset-level DQ summary (PASS/FAIL per source) |
+| `data/bi_star/YYYY-MM/fact_gl.csv` | Star schema GL fact table |
+| `data/bi_star/YYYY-MM/fact_kpi_monthly.csv` | KPI fact with margin % columns |
+| `data/bi_star/YYYY-MM/dim_*.csv` | Date, entity, account dimensions |
+| `reports/YYYY-MM/dashboard.html` | Interactive HTML dashboard |
 
 ---
 
-## 📜 Data Contracts
-* **fact_transactions.parquet** → GL transactions
-* **dim_accounts.parquet** → Chart of accounts
-* **kpi_monthly.parquet** → KPI metrics
+## Data Quality controls
+
+- **Schema validation** — required columns, data types, non-null constraints per dataset
+- **Currency whitelist** — rejects transactions in currencies outside allowed set
+- **COA referential integrity** — flags account codes not present in chart of accounts
+- **Severity grading** — key field violations → ERROR; non-critical → WARN
+- **Audit trail** — full exception log written every run regardless of pass/fail
+- **DQ summary** — one status row per dataset (sales · expenses · payroll · cogs_inventory · fx_rates)
 
 ---
 
-## ✅ Data Quality Controls
-* Null checks
-* Referential integrity (entity/account keys)
-* KPI consistency checks
+## Project structure
+
+```
+├── src/finance_etl/
+│   ├── pipeline.py       # Core ETL orchestration
+│   ├── transform.py      # Fact table, KPI, FX conversion
+│   ├── quality.py        # Schema definitions, DQ checks, severity
+│   ├── io_utils.py       # CSV/Parquet read/write helpers
+│   ├── config.py         # Settings (base currency, allowed currencies, paths)
+│   └── cli.py            # Typer CLI entrypoint
+├── scripts/
+│   ├── generate_synthetic_data.py   # Synthetic raw data generator
+│   ├── export_powerbi_star_schema.py
+│   └── build_dashboard.py           # HTML dashboard builder
+├── data/
+│   ├── raw/              # Input CSVs (generated or real extracts)
+│   ├── reference/        # chart_of_accounts.csv
+│   ├── curated/          # Parquet outputs
+│   └── bi_star/          # Star schema CSVs
+├── reports/              # HTML dashboards
+└── tests/
+```
 
 ---
 
-## 📊 Outputs & KPIs
-* **Star schema CSVs:** `dim_date.csv`, `dim_month.csv`, `dim_entity.csv`, `dim_account.csv`, `fact_gl.csv`, `fact_kpi_monthly.csv`
-* KPIs: Revenue, Expense, Gross Margin %, Operating Margin %
+## Running tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+CI runs on every push via GitHub Actions: lint (Ruff), format check (Black), tests (pytest), dependency audit (pip-audit).
 
 ---
 
-## 🤝 Contributing
-Pull requests are welcome!Run `pre-commit run --all-files` before committing to keep CI green.
+## Disclaimer
+
+All data in this repository is entirely synthetic and generated for demonstration purposes. No proprietary, confidential, or real business information is included. The tools were built independently to demonstrate finance data engineering patterns.
 
 ---
 
-## 📄 License
-MIT License © 2026 Chez Solutions
+## Author
+
+**Zahidah Murira** · Group Finance Lead · CMA · CGBA · CFA Level I  
+[ziddmurira@gmail.com](mailto:ziddmurira@gmail.com) · [LinkedIn](https://linkedin.com/in/zahidahmurira) · [finance-automation-toolkit](https://github.com/Chezhira/finance-automation-toolkit)

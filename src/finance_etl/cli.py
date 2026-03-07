@@ -1,6 +1,7 @@
+from pathlib import Path
+
 from typer import Option, Typer
 
-# Force a multi-command app (group) and show help when no args are given
 app = Typer(help="Finance ETL CLI", no_args_is_help=True, add_completion=False)
 
 
@@ -8,31 +9,49 @@ app = Typer(help="Finance ETL CLI", no_args_is_help=True, add_completion=False)
 def run_cmd(
     month: str = Option(..., "--month", "-m", help="Target month, e.g., 2025-12"),
     fail_on: str = Option("ERROR", "--fail-on", help="DQ strictness: ERROR|WARN|NEVER"),
+    raw_dir: str = Option("data/raw", "--raw-dir", help="Raw input directory"),
+    curated_dir: str = Option("data/curated", "--curated-dir", help="Curated output directory"),
+    reference_dir: str = Option("data/reference", "--reference-dir", help="Reference data directory"),
 ):
     """
-    Run the monthly-close pipeline.
+    Run the monthly-close ETL pipeline.
 
     Example:
+      finance-etl run --month 2025-12
       finance-etl run --month 2025-12 --fail-on WARN
     """
-    # TODO: wire up your real pipeline here
-    # from finance_etl.pipeline import run_pipeline
-    # run_pipeline(month=month, fail_on=fail_on)
+    from finance_etl.config import Settings
+    from finance_etl.pipeline import run_month
+
     print(f"Running ETL for month={month}, fail_on={fail_on}")
+
+    settings = Settings()
+    outputs = run_month(
+        settings=settings,
+        month=month,
+        raw_dir=Path(raw_dir),
+        curated_dir=Path(curated_dir),
+        reference_dir=Path(reference_dir),
+        fail_on=fail_on,
+    )
+
+    print(f"  fact_transactions  -> {outputs['fact']}")
+    print(f"  dim_accounts       -> {outputs['dim_accounts']}")
+    print(f"  kpi_monthly        -> {outputs['kpi']}")
+    print(f"  dq_exceptions      -> {outputs['dq_exceptions']}")
+    print(f"  dq_summary         -> {outputs['dq_summary']}")
+    print(f"\nETL complete. Run: python scripts/export_powerbi_star_schema.py --month {month}")
 
 
 @app.command("version")
 def version_cmd():
-    """Show CLI version (placeholder to keep multi-command layout)."""
+    """Show CLI version."""
     try:
-        # If you set version in pyproject, you can read it dynamically:
         from importlib.metadata import version
-
         print("finance-etl", version("finance-etl"))
     except Exception:
         print("finance-etl 0.1.0")
 
 
 if __name__ == "__main__":
-    # Running as a module or script should now show a COMMANDS section.
     app()

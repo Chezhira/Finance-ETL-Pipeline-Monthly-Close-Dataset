@@ -105,7 +105,7 @@ def run_month(
     v_sales = validate_or_collect(sales, sales_schema(settings.allowed_currencies), "sales", issues)
     v_exp = validate_or_collect(expenses, expenses_schema(settings.allowed_currencies), "expenses", issues)
     v_pay = validate_or_collect(payroll, payroll_schema(settings.allowed_currencies), "payroll", issues)
-    v_inv = validate_or_collect(inventory, inventory_schema(settings.allowed_currencies), "inventory_movements", issues)
+    v_inv = validate_or_collect(inventory, inventory_schema(settings.allowed_currencies), "cogs_inventory", issues)
     v_fx = validate_or_collect(
         fx_rates, fx_schema(settings.allowed_currencies, settings.base_currency), "fx_rates", issues
     )

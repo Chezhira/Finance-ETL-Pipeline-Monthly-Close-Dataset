@@ -1,132 +1,611 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>Finance Dashboard - 2025-12</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Finance Close — 2025-12</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; margin: 24px; }
-    .muted { color: #666; font-size: 12px; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #eee; padding: 8px; font-size: 12px; }
-    th { background: #fafafa; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#060a0f;--surface:#0c1118;--surface2:#0f1520;--border:#1a2435;--border2:#1e2d40;
+      --text:#e2e8f0;--muted:#334155;--sub:#475569;
+      --accent:#a78bfa;--green:#4ade80;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;padding:36px 28px;min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events:none;z-index:0}
+    .wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+
+    /* Header */
+    .hdr{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+    .eyebrow{font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-family:'DM Mono',monospace}
+    h1{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;line-height:1}
+    h1 span{color:var(--accent)}
+    .hdr-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-align:right;line-height:2}
+    .hdr-meta b{color:var(--sub)}
+
+    /* KPI grid */
+    .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+    @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:560px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;
+      animation:fadeUp .45s ease both}
+    .kc:nth-child(1){animation-delay:.05s}.kc:nth-child(2){animation-delay:.10s}
+    .kc:nth-child(3){animation-delay:.15s}.kc:nth-child(4){animation-delay:.20s}
+    .kc:nth-child(5){animation-delay:.25s}.kc:nth-child(6){animation-delay:.30s}
+    .kc-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px}
+    .kc-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1}
+    .kc-sub{font-size:9px;color:var(--muted);margin-top:5px;font-family:'DM Mono',monospace}
+
+    /* Panels */
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;animation:fadeUp .45s ease both;animation-delay:.3s}
+    .ph{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .pt{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-family:'DM Mono',monospace}
+    .psub{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace}
+    .pb{padding:18px}
+
+    /* Grids */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .g3{display:grid;grid-template-columns:1.8fr 1fr 1fr;gap:14px;margin-bottom:14px}
+    .g4{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+    @media(max-width:800px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    thead tr{border-bottom:1px solid var(--border)}
+    th{padding:10px 16px;text-align:right;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace}
+    th:first-child{text-align:left}
+    tbody tr{border-bottom:1px solid #0b0f17;transition:background .15s}
+    tbody tr:hover{background:#0f1622}
+    tbody tr:last-child{border-bottom:none}
+
+    /* MoM banner */
+    .mom-banner{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
+      padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;gap:12px;
+      font-size:11px;color:var(--sub);font-family:'DM Mono',monospace}
+    .mom-banner::before{content:'◈';color:var(--accent);font-size:14px;flex-shrink:0}
+
+    /* Canvas */
+    canvas{display:block;width:100%}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    .footer{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.5px;
+      margin-top:32px;padding-top:16px;border-top:1px solid var(--border);
+      display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
   </style>
 </head>
 <body>
-  <h1>Finance Monthly Close Dashboard</h1>
-  <p class="muted">Month: <b>2025-12</b> | Built: 2026-01-10 17:00 | Curated: C:\Users\ziddm\data-work\finance-etl-pipeline\data\curated</p>
+<div class="wrap">
 
-  <div class="card">
-    <h2>KPI Trend</h2>
-    <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="d0054be5-cd5f-4345-9db5-fb4d6a884ea1" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("d0054be5-cd5f-4345-9db5-fb4d6a884ea1")) {                    Plotly.newPlot(                        "d0054be5-cd5f-4345-9db5-fb4d6a884ea1",                        [{"hovertemplate":"entity=TLM\u003cbr\u003emonth=%{x}\u003cbr\u003eRevenue=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"TLM","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"TLM","orientation":"v","showlegend":true,"x":["2025-12"],"xaxis":"x","y":{"dtype":"f8","bdata":"UrgehSuA50A="},"yaxis":"y","type":"scatter"},{"hovertemplate":"entity=UPE\u003cbr\u003emonth=%{x}\u003cbr\u003eRevenue=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"UPE","line":{"color":"#EF553B","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"UPE","orientation":"v","showlegend":true,"x":["2025-12"],"xaxis":"x","y":{"dtype":"f8","bdata":"exSuR6FY3UA="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"month"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Revenue"}},"legend":{"title":{"text":"entity"},"tracegroupgap":0},"title":{"text":"Revenue Trend (Top Entities)"}},                        {"responsive": true}                    )                };            </script>        </div>
-    <br/>
-    <div>                            <div id="6e34f32e-d8ec-4ff3-919e-6d04b320f792" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("6e34f32e-d8ec-4ff3-919e-6d04b320f792")) {                    Plotly.newPlot(                        "6e34f32e-d8ec-4ff3-919e-6d04b320f792",                        [{"hovertemplate":"entity=TLM\u003cbr\u003emonth=%{x}\u003cbr\u003eoperating_profit=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"TLM","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"TLM","orientation":"v","showlegend":true,"x":["2025-12"],"xaxis":"x","y":{"dtype":"f8","bdata":"9ihcj8I5uMA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"entity=UPE\u003cbr\u003emonth=%{x}\u003cbr\u003eoperating_profit=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"UPE","line":{"color":"#EF553B","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"UPE","orientation":"v","showlegend":true,"x":["2025-12"],"xaxis":"x","y":{"dtype":"f8","bdata":"7FG4HkUM0sA="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"month"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"operating_profit"}},"legend":{"title":{"text":"entity"},"tracegroupgap":0},"title":{"text":"Operating Profit Trend (Top Entities)"}},                        {"responsive": true}                    )                };            </script>        </div>
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<div class="hdr">
+  <div>
+    <div class="eyebrow">Acacia Group · Monthly Close Report</div>
+    <h1>Finance <span>2025-12</span></h1>
   </div>
+  <div class="hdr-meta">
+    <b>Generated</b> 2026-03-07 08:22<br/>
+    <b>Transactions</b> 128<br/>
+    <b>DQ Status</b> ALL PASS<br/>
+    <b>Base Currency</b> USD
+  </div>
+</div>
 
-  <div class="card">
-    <h2>KPIs (Selected Month)</h2>
-    <table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>entity</th>
-      <th>month</th>
-      <th>Asset</th>
-      <th>COGS</th>
-      <th>Expense</th>
-      <th>Revenue</th>
-      <th>gross_profit</th>
-      <th>operating_profit</th>
-      <th>gross_margin_pct</th>
-      <th>operating_margin_pct</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>TLM</td>
-      <td>2025-12</td>
-      <td>4,771.96</td>
-      <td>-15,648.55</td>
-      <td>-38,682.57</td>
-      <td>48,129.36</td>
-      <td>32,480.81</td>
-      <td>-6,201.76</td>
-      <td>67.49</td>
-      <td>-12.89</td>
-    </tr>
-    <tr>
-      <td>UPE</td>
-      <td>2025-12</td>
-      <td>12,717.67</td>
-      <td>-17,281.12</td>
-      <td>-31,250.48</td>
-      <td>30,050.52</td>
-      <td>12,769.40</td>
-      <td>-18,481.08</td>
-      <td>42.49</td>
-      <td>-61.50</td>
-    </tr>
-  </tbody>
-</table>
+<!-- ── KPI Cards ──────────────────────────────────────────────────────────── -->
+<div class="kpi-grid">
+  <div class="kc" style="border-top:2px solid var(--green)">
+    <div class="kc-label">Total Revenue</div>
+    <div class="kc-value" style="color:var(--green)">48,129</div>
+    <div class="kc-sub">group consolidated</div>
   </div>
+  <div class="kc" style="border-top:2px solid var(--accent)">
+    <div class="kc-label">Gross Profit</div>
+    <div class="kc-value" style="color:var(--accent)">32,481</div>
+    <div class="kc-sub">after COGS</div>
+  </div>
+  <div class="kc" style="border-top:2px solid #4ade80">
+    <div class="kc-label">Gross Margin</div>
+    <div class="kc-value" style="color:#4ade80">67.5%</div>
+    <div class="kc-sub">group blended</div>
+  </div>
+  <div class="kc" style="border-top:2px solid #f87171">
+    <div class="kc-label">Operating Profit</div>
+    <div class="kc-value" style="color:#f87171">-6,202</div>
+    <div class="kc-sub">-12.9% margin</div>
+  </div>
+  <div class="kc" style="border-top:2px solid var(--red)">
+    <div class="kc-label">Total OpEx</div>
+    <div class="kc-value" style="color:var(--red)">38,683</div>
+    <div class="kc-sub">excl. COGS</div>
+  </div>
+  <div class="kc" style="border-top:2px solid var(--green)">
+    <div class="kc-label">DQ Status</div>
+    <div class="kc-value" style="color:var(--green)">PASS</div>
+    <div class="kc-sub">0 issues flagged</div>
+  </div>
+</div>
 
-  <div class="card">
-    <h2>Expense Breakdown</h2>
-    <div>                            <div id="1b910aae-4aa3-41f7-b61b-512f45a07756" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("1b910aae-4aa3-41f7-b61b-512f45a07756")) {                    Plotly.newPlot(                        "1b910aae-4aa3-41f7-b61b-512f45a07756",                        [{"hovertemplate":"_abs=%{x}\u003cbr\u003e_label=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"f8","bdata":"wvUoXP9410BI4XoUDqHTQNejcD0KmNFAR+F6FK5kvkA="},"xaxis":"x","y":["62000001 - Rent","63000001 - Travel & Subsistence","64000001 - Bank Charges","61000001 - Salaries & Wages"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"_abs"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"_label"}},"legend":{"tracegroupgap":0},"title":{"text":"Top Expense Accounts (Abs Value)"},"barmode":"relative"},                        {"responsive": true}                    )                };            </script>        </div>
-  </div>
+<!-- ── MoM Banner ─────────────────────────────────────────────────────────── -->
+<div class="mom-banner">
+  Prior month data not yet available — MoM comparison activates when pipeline runs across multiple months.
+</div>
 
-  <div class="card">
-    <h2>Data Quality Summary</h2>
-    <table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>dataset</th>
-      <th>error_count</th>
-      <th>warn_count</th>
-      <th>issue_count</th>
-      <th>status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>sales</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>PASS</td>
-    </tr>
-    <tr>
-      <td>expenses</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>PASS</td>
-    </tr>
-    <tr>
-      <td>payroll</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>PASS</td>
-    </tr>
-    <tr>
-      <td>inventory_movements</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>PASS</td>
-    </tr>
-    <tr>
-      <td>fx_rates</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>PASS</td>
-    </tr>
-  </tbody>
-</table>
-    <h3>DQ Exceptions (sample)</h3>
-    <p class='muted'>No dq_exceptions.csv</p>
+<!-- ── Row 1: Sparkline + Waterfall + Entity Contribution ─────────────────── -->
+<div class="g3">
+  <div class="panel">
+    <div class="ph"><span class="pt">Daily Revenue</span><span class="psub">2025-12 · USD</span></div>
+    <div class="pb" style="padding-bottom:14px">
+      <canvas id="spark" height="88"></canvas>
+      <div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">
+        All entities combined · day-by-day
+      </div>
+    </div>
   </div>
+  <div class="panel">
+    <div class="ph"><span class="pt">P&amp;L Waterfall</span><span class="psub">USD</span></div>
+    <div class="pb" style="padding-bottom:14px">
+      <canvas id="waterfall" height="160"></canvas>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Revenue by Entity</span><span class="psub">% of group</span></div>
+    <div class="pb">
+      <canvas id="donut" height="100" style="margin-bottom:12px"></canvas>
+      
+            <div style="margin-bottom:14px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <span style="color:#94a3b8;font-size:11px">Entity A</span>
+                <span style="color:#e2e8f0;font-size:11px;font-weight:600">100.0%&nbsp;&nbsp;<span style="color:#334155">48,129</span></span>
+              </div>
+              <div style="width:100.0%;height:3px;background:#a78bfa;border-radius:2px;margin-top:3px"></div>
+            </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Row 2: Revenue mix + Expense breakdown ─────────────────────────────── -->
+<div class="g2">
+  <div class="panel">
+    <div class="ph"><span class="pt">Revenue Mix</span><span class="psub">by account · USD</span></div>
+    <div class="pb">
+                <div style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="color:#94a3b8;font-size:11px">Sales - Export</span>
+                    <span style="color:#e2e8f0;font-size:11px;font-weight:600">33,218</span>
+                  </div>
+                  <div style="width:100.0%;height:3px;background:#4ade80;border-radius:2px;margin-top:3px"></div>
+                </div>
+                <div style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="color:#94a3b8;font-size:11px">Sales - Local</span>
+                    <span style="color:#e2e8f0;font-size:11px;font-weight:600">14,911</span>
+                  </div>
+                  <div style="width:44.9%;height:3px;background:#4ade80;border-radius:2px;margin-top:3px"></div>
+                </div></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><span class="pt">OpEx Breakdown</span><span class="psub">by account · USD</span></div>
+    <div class="pb">
+                <div style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="color:#94a3b8;font-size:11px">Rent</span>
+                    <span style="color:#e2e8f0;font-size:11px;font-weight:600">14,059</span>
+                  </div>
+                  <div style="width:100.0%;height:3px;background:#f87171;border-radius:2px;margin-top:3px"></div>
+                </div>
+                <div style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="color:#94a3b8;font-size:11px">Bank Charges</span>
+                    <span style="color:#e2e8f0;font-size:11px;font-weight:600">11,693</span>
+                  </div>
+                  <div style="width:83.2%;height:3px;background:#f87171;border-radius:2px;margin-top:3px"></div>
+                </div>
+                <div style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="color:#94a3b8;font-size:11px">Travel & Subsistence</span>
+                    <span style="color:#e2e8f0;font-size:11px;font-weight:600">8,778</span>
+                  </div>
+                  <div style="width:62.4%;height:3px;background:#f87171;border-radius:2px;margin-top:3px"></div>
+                </div>
+                <div style="margin-bottom:14px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="color:#94a3b8;font-size:11px">Salaries & Wages</span>
+                    <span style="color:#e2e8f0;font-size:11px;font-weight:600">4,153</span>
+                  </div>
+                  <div style="width:29.5%;height:3px;background:#f87171;border-radius:2px;margin-top:3px"></div>
+                </div></div>
+  </div>
+</div>
+
+<!-- ── Entity P&L Table ───────────────────────────────────────────────────── -->
+<div class="panel" style="margin-bottom:14px">
+  <div class="ph">
+    <span class="pt">Entity P&amp;L Summary</span>
+    <span class="psub">All figures USD · 2025-12</span>
+  </div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th>Entity</th><th>Revenue</th><th>COGS</th><th>Gross Profit</th>
+        <th>GM %</th><th>OpEx</th><th>Op. Profit</th><th>OP %</th>
+      </tr></thead>
+      <tbody>
+        
+            <tr>
+              <td style="padding:11px 16px;color:#a78bfa;font-weight:700;font-family:'DM Mono',monospace">Entity A</td>
+              <td style="padding:11px 16px;text-align:right;color:#e2e8f0">48,129</td>
+              <td style="padding:11px 16px;text-align:right;color:#f87171">-15,649</td>
+              <td style="padding:11px 16px;text-align:right;color:#4ade80">32,481</td>
+              <td style="padding:11px 16px;text-align:right;color:#4ade80">67.5%</td>
+              <td style="padding:11px 16px;text-align:right;color:#f87171">-38,683</td>
+              <td style="padding:11px 16px;text-align:right;color:#f87171">-6,202</td>
+              <td style="padding:11px 16px;text-align:right;color:#f87171">-12.9%</td>
+            </tr>
+        <tr style="border-top:2px solid var(--border);background:#0c1118">
+          <td style="padding:11px 16px;color:var(--accent);font-weight:700;font-family:'DM Mono',monospace">GROUP TOTAL</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:var(--green)">48,129</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:var(--red)">-15,649</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:#4ade80">32,481</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:#4ade80">67.5%</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:var(--red)">-38,683</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:#f87171">-6,202</td>
+          <td style="padding:11px 16px;text-align:right;font-weight:700;color:#f87171">-12.9%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Top 10 Transactions ────────────────────────────────────────────────── -->
+<div class="panel" style="margin-bottom:14px">
+  <div class="ph">
+    <span class="pt">Top 10 Transactions by Value</span>
+    <span class="psub">2025-12</span>
+  </div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Entity</th><th>Account</th><th>Type</th><th>Description</th><th>Amount (USD)</th>
+      </tr></thead>
+      <tbody>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">10 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Export</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">4,726</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">28 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Export</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">4,527</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">27 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Export</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">4,055</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">11 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Local</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">3,614</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">20 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Local</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">3,542</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">06 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Local</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">3,426</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">04 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Export</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">3,246</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">07 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Export</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">2,904</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">08 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Sales - Export</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">Revenue</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">Synthetic sale</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">2,894</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#475569;font-family:'DM Mono',monospace;font-size:10px">12 Dec</td>
+              <td style="padding:10px 16px;color:#a78bfa;font-family:'DM Mono',monospace;font-size:11px">Entity A</td>
+              <td style="padding:10px 16px;color:#94a3b8;font-size:11px">Cash at Bank</td>
+              <td style="padding:10px 16px">
+                <span style="padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:0.5px;
+                  background:#60a5fa18;border:1px solid #60a5fa44;color:#60a5fa">Asset</span>
+              </td>
+              <td style="padding:10px 16px;color:#64748b;font-size:10px">receipt PROD-002</td>
+              <td style="padding:10px 16px;text-align:right;color:#4ade80;font-family:'DM Mono',monospace;font-size:11px;font-weight:600">2,768</td>
+            </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── DQ + Metadata ─────────────────────────────────────────────────────── -->
+<div class="g2">
+  <div class="panel">
+    <div class="ph">
+      <span class="pt">Data Quality Report</span>
+      <span style="padding:2px 9px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;
+        background:#0a201580;
+        border:1px solid #4ade8066;
+        color:#4ade80">
+        ALL PASS
+      </span>
+    </div>
+    <table>
+      <thead><tr><th>Dataset</th><th style="text-align:center">Errors</th><th style="text-align:center">Warnings</th><th style="text-align:center">Status</th></tr></thead>
+      <tbody>
+        
+            <tr>
+              <td style="padding:10px 16px;color:#94a3b8;font-family:'DM Mono',monospace;font-size:11px">sales</td>
+              <td style="padding:10px 16px;text-align:center;color:#f87171;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center;color:#facc15;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center">
+                <span style="padding:2px 9px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">PASS</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#94a3b8;font-family:'DM Mono',monospace;font-size:11px">expenses</td>
+              <td style="padding:10px 16px;text-align:center;color:#f87171;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center;color:#facc15;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center">
+                <span style="padding:2px 9px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">PASS</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#94a3b8;font-family:'DM Mono',monospace;font-size:11px">payroll</td>
+              <td style="padding:10px 16px;text-align:center;color:#f87171;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center;color:#facc15;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center">
+                <span style="padding:2px 9px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">PASS</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#94a3b8;font-family:'DM Mono',monospace;font-size:11px">cogs_inventory</td>
+              <td style="padding:10px 16px;text-align:center;color:#f87171;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center;color:#facc15;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center">
+                <span style="padding:2px 9px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">PASS</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;color:#94a3b8;font-family:'DM Mono',monospace;font-size:11px">fx_rates</td>
+              <td style="padding:10px 16px;text-align:center;color:#f87171;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center;color:#facc15;font-family:'DM Mono',monospace">0</td>
+              <td style="padding:10px 16px;text-align:center">
+                <span style="padding:2px 9px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;
+                  background:#4ade8018;border:1px solid #4ade8044;color:#4ade80">PASS</span>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Pipeline Metadata</span></div>
+    <div class="pb">
+      <div style="display:grid;gap:0">
+        <div style="display:flex;justify-content:space-between;padding:10px 0;
+          border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted)">Report month</span>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--sub)">2025-12</span>
+        </div><div style="display:flex;justify-content:space-between;padding:10px 0;
+          border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted)">Base currency</span>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--sub)">USD</span>
+        </div><div style="display:flex;justify-content:space-between;padding:10px 0;
+          border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted)">Transactions</span>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--sub)">128</span>
+        </div><div style="display:flex;justify-content:space-between;padding:10px 0;
+          border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted)">Entities</span>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--sub)">Entity A</span>
+        </div><div style="display:flex;justify-content:space-between;padding:10px 0;
+          border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted)">DQ exceptions</span>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--sub)">0</span>
+        </div><div style="display:flex;justify-content:space-between;padding:10px 0;
+          border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted)">Generated</span>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--sub)">2026-03-07 08:22</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>Finance ETL Pipeline · Acacia Group · 2025-12</span>
+  <span>All data synthetic · github.com/Chezhira/Finance-ETL-Pipeline-Monthly-Close-Dataset</span>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── Sparkline ────────────────────────────────────────────────────────────────
+(function() {
+  const raw = [('01', 3535.0), ('02', 360.0), ('03', 2.0), ('04', 3246.0), ('05', 2547.0), ('06', 4675.0), ('07', 4612.0), ('08', 2895.0), ('09', 995.0), ('10', 4726.0), ('11', 3614.0), ('15', 1.0), ('20', 3542.0), ('23', 1761.0), ('24', 1.0), ('25', 2.0), ('26', 718.0), ('27', 5976.0), ('28', 4527.0), ('30', 2.0), ('31', 394.0)];
+  const canvas = document.getElementById('spark');
+  if (!canvas || !raw.length) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth - 36, H = 88;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  const vals = raw.map(r=>r[1]), labels = raw.map(r=>r[0]);
+  const maxV = Math.max(...vals), minV = Math.min(0,...vals), range = maxV-minV||1;
+  const pad = {l:4,r:4,t:8,b:20}, pW = W-pad.l-pad.r, pH = H-pad.t-pad.b;
+  const step = pW/Math.max(raw.length-1,1);
+  const pts = raw.map((r,i)=>{
+    return {x:pad.l+i*step, y:pad.t+pH*(1-(r[1]-minV)/range), v:r[1], lbl:r[0]};
+  });
+  const g = ctx.createLinearGradient(0,pad.t,0,H-pad.b);
+  g.addColorStop(0,'rgba(74,222,128,0.20)'); g.addColorStop(1,'rgba(74,222,128,0)');
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H-pad.b); ctx.lineTo(pts[0].x,H-pad.b);
+  ctx.closePath(); ctx.fillStyle=g; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='#4ade80'; ctx.lineWidth=1.8; ctx.stroke();
+  pts.forEach(p=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fillStyle='#4ade80'; ctx.fill();
+  });
+  ctx.fillStyle='#334155'; ctx.font='8px DM Mono,monospace'; ctx.textAlign='center';
+  pts.forEach((p,i)=>{ if(i%5===0) ctx.fillText(p.lbl,p.x,H-4); });
+})();
+
+// ── Waterfall ────────────────────────────────────────────────────────────────
+(function() {
+  const data = [{"label": "Revenue", "value": 48129.36, "isTotal": false, "base": 0}, {"label": "COGS", "value": -15648.55, "isTotal": false, "base": 48129.36}, {"label": "Gross Profit", "value": 32480.81, "isTotal": true, "base": 0}, {"label": "OpEx", "value": -38682.57, "isTotal": false, "base": 32480.81}, {"label": "Op. Profit", "value": -6201.76, "isTotal": true, "base": 0}];
+  const canvas = document.getElementById('waterfall');
+  if (!canvas || !data.length) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth - 36, H = 160;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const pad = {l:8,r:8,t:12,b:36};
+  const pW = W-pad.l-pad.r, pH = H-pad.t-pad.b;
+  const allVals = data.map(d => d.isTotal ? d.value : d.base+d.value).concat(data.map(d=>d.base));
+  const maxV = Math.max(...allVals.map(v=>Math.abs(v)))*1.15||1;
+  const zeroY = pad.t + pH*0.5;
+  function toY(v) { return pad.t + pH*(0.5 - v/(maxV*2)); }
+  const bw = pW/data.length*0.6, gap = pW/data.length;
+  const COLORS = {pos:'#4ade80',neg:'#f87171',total:'#a78bfa',zero:'#334155'};
+  // Zero line
+  ctx.strokeStyle='#1a2435'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad.l,zeroY); ctx.lineTo(W-pad.r,zeroY); ctx.stroke();
+  data.forEach((d,i) => {
+    const cx = pad.l + i*gap + gap*0.5;
+    const x = cx - bw*0.5;
+    const top = d.isTotal ? toY(d.value) : toY(d.base + (d.value>0?d.value:0));
+    const bot = d.isTotal ? toY(0) : toY(d.base + (d.value<0?d.value:0));
+    const barH = Math.abs(bot-top)||2;
+    const color = d.isTotal ? COLORS.total : (d.value>=0 ? COLORS.pos : COLORS.neg);
+    // Connector line
+    if (i>0 && !d.isTotal) {
+      const prevD = data[i-1];
+      const prevTop = prevD.isTotal ? toY(prevD.value) : toY(prevD.base+prevD.value);
+      ctx.strokeStyle='#1e2d40'; ctx.lineWidth=1; ctx.setLineDash([2,3]);
+      ctx.beginPath(); ctx.moveTo(x, prevTop); ctx.lineTo(x+bw, prevTop); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle=color+'33'; ctx.fillRect(x, Math.min(top,bot), bw, barH);
+    ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.strokeRect(x, Math.min(top,bot), bw, barH);
+    // Value label
+    const labelY = Math.min(top,bot) - 4;
+    ctx.fillStyle = color; ctx.font='bold 8px DM Mono,monospace'; ctx.textAlign='center';
+    const v = Math.abs(d.value);
+    const lbl = v>=1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(0);
+    ctx.fillText((d.value<0&&!d.isTotal?'-':'')+lbl, cx, labelY<pad.t+8?Math.min(top,bot)+barH+10:labelY);
+    // X label
+    ctx.fillStyle='#334155'; ctx.font='8px DM Mono,monospace';
+    const words = d.label.split(' ');
+    words.forEach((w,wi) => ctx.fillText(w, cx, H-pad.b+12+wi*10));
+  });
+})();
+
+// ── Donut ────────────────────────────────────────────────────────────────────
+(function() {
+  const data = [{"label": "Entity A", "value": 48129.36, "color": "#a78bfa"}];
+  const canvas = document.getElementById('donut');
+  if (!canvas || !data.length) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth - 36, H = 100;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const cx = W/2, cy = H/2, r = Math.min(W,H)*0.38, ir = r*0.6;
+  const total = data.reduce((s,d)=>s+d.value,0);
+  let angle = -Math.PI/2;
+  data.forEach(d => {
+    const slice = (d.value/total)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath(); ctx.fillStyle=d.color+'bb'; ctx.fill();
+    ctx.strokeStyle=d.color; ctx.lineWidth=1.5; ctx.stroke();
+    angle += slice;
+  });
+  // Hole
+  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2);
+  ctx.fillStyle='#0c1118'; ctx.fill();
+  // Centre label
+  ctx.fillStyle='#e2e8f0'; ctx.font='bold 10px Playfair Display,serif'; ctx.textAlign='center';
+  ctx.fillText(data.length+' Entities', cx, cy+4);
+})();
+</script>
 </body>
 </html>

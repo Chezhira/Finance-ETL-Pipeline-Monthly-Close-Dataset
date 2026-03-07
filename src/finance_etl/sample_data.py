@@ -78,7 +78,7 @@ def generate_synthetic_raw(out_dir: Path, month: str = "2025-12", seed: int = 42
 
     # Inventory movements
     inv_rows: list[list[object]] = []
-    skus = ["HONEY-DRUM", "WAX-BLOCK", "GIN-750ML"]
+    skus = ["PROD-001", "PROD-002", "PROD-003"]
     for entity in entities:
         n = int(np.random.randint(20, 40))
         for _ in range(n):

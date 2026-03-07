@@ -117,7 +117,7 @@ def validate_or_collect(
 
 # --- DQ severity + summary helpers (audit-ready) ---
 
-DATASETS = ["sales", "expenses", "payroll", "inventory_movements", "fx_rates"]
+DATASETS = ["sales", "expenses", "payroll", "cogs_inventory", "fx_rates"]
 
 
 def add_severity(dq_exceptions: pd.DataFrame) -> pd.DataFrame:
