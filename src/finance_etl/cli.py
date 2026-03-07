@@ -48,6 +48,7 @@ def version_cmd():
     """Show CLI version."""
     try:
         from importlib.metadata import version
+
         print("finance-etl", version("finance-etl"))
     except Exception:
         print("finance-etl 0.1.0")
