@@ -144,5 +144,5 @@ All data in this repository is entirely synthetic and generated for demonstratio
 
 ## Author
 
-**Zahidah Murira** · Group Finance Lead · CMA · CGBA · CFA Level I  
+**Zahidah Murira** · Finance Lead · CMA · CGBA · CFA Level I  
 [ziddmurira@gmail.com](mailto:ziddmurira@gmail.com) · [LinkedIn](https://linkedin.com/in/zahidahmurira) · [finance-automation-toolkit](https://github.com/Chezhira/finance-automation-toolkit)
